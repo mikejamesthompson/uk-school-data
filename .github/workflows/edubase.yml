@@ -1,0 +1,30 @@
+name: Download latest Edubase data
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron:  '6 11 * * *'
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out this repo
+      uses: actions/checkout@v2
+
+    - name: Fetch yesterday's Edubase data
+      run: |-
+        dateString=$(date -d "yesterday 13:00" '+%Y%m%d')
+        curl https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata${dateString}.csv > data/england/schools/schools.csv
+        curl https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/links_edubasealldata${dateString}.csv > data/england/schools/school-links.csv
+
+    - name: Commit and push if it changed
+      run: |-
+        git config user.name "Automated"
+        git config user.email "actions@users.noreply.github.com"
+        git add -A
+        timestamp=$(date -u)
+        git commit -m "Edubase update: ${timestamp}" || exit 0
+        git push
