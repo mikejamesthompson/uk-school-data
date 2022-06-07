@@ -1,8 +1,6 @@
 name: Update to latest Ofsted data
 
 on:
-  push:
-  workflow_dispatch:
   schedule:
     - cron:  '23 02 14 * *'
 

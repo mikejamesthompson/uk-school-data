@@ -1,8 +1,6 @@
 name: Update to latest Edubase data
 
 on:
-  push:
-  workflow_dispatch:
   schedule:
     - cron:  '6 11 * * *'
 
