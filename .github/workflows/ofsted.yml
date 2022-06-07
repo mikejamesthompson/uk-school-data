@@ -1,0 +1,38 @@
+name: Update to latest Ofsted data
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron:  '23 02 14 * *'
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out this repo
+      uses: actions/checkout@v3
+
+    - name: Install Poetry
+      run: pipx install poetry
+
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+        cache: 'poetry'
+
+    - name: Install dependencies and run download script
+      run: poetry install
+
+    - name: Download latest Ofsted data
+      run: poetry run python ./bin/get_ofsted_data.py > data/england/ofsted/inspection-outcomes.csv
+
+    - name: Commit and push if it changed
+      run: |-
+        git config user.name "Automated"
+        git config user.email "actions@users.noreply.github.com"
+        git add -A
+        timestamp=$(date -u)
+        git commit -m "Ofsted update: ${timestamp}" || exit 0
+        git push
